@@ -5,6 +5,6 @@ from django.db import models
 class DatabaseEntry (models.Model):
      checksum = models.CharField (max_length = 64)
      path     = models.CharField (max_length = 256)
-     sent     = models.DateTimeField ()
+     sent     = models.IntegerField () # Timestamp
 
 # vim: tabstop=4 shiftwidth=4 expandtab
