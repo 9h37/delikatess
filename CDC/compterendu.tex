@@ -1,0 +1,121 @@
+\part{Compte rendu du stage}
+
+\section{Développement du script de base pour la sauvegarde et le chiffrement des données}
+
+\subsection{Convention de l'ANSSI}
+
+L'Agence Nationale de la Sécurité des Systèmes d'Information recommande l'utilisation de
+l'algorithme de hachage \textbf{SHA-256}.
+
+\subsection{Consigne}
+
+Le script de base devra être développé en \textit{Python 2.7} et devra remplir les conditions
+suivantes :
+
+\begin{enumerate}
+     \item Indentation de 4 espaces, pas de tabulations.
+     \item Deux répertoires : \textbf{src} et \textbf{dest}, le fichiers ne doivent pas être
+     copiés de \textit{src} vers \textit{dest}, ce dernier répertoire ne devra contenir que du
+     contenu chiffré.
+     \item Calculer la somme SHA-256 des fichiers sources et l'afficher.
+     \item Chiffrer les fichiers avec \textit{GnuPG} dans \textit{dest}.
+
+     \begin{enumerate}
+          \item Si le fichier n'existe pas, le créer.
+          \item Si le fichier existe le nommer selon ce pattern : \textit{filename.X.gpg} où X
+          varie de 1 à 5 (à la 6è itération, on supprime le fichier).
+     \end{enumerate}
+
+     \item Placer le code source dans un dépôt \textit{git}.
+     \item Utiliser \textit{unittest} pour les tests unitaires.
+\end{enumerate}
+
+\subsection{Conclusion}
+
+Cette partie du logiciel a été développée sous la forme d'un paquet \textit{Python}.
+
+A l'aide d'un unique objet, on est capable de récupérer la liste des fichiers du répertoire
+source, de calculer leurs sommes SHA-256 et de les chiffrer via \textit{GnuPG} :
+
+\begin{verbatim}
+     from src.filemanager import FileManager
+
+     fm = FileManager.FileManager (srcpath, destpath)
+     filelist = fm.read_entries ()
+     checksum = fm.hash_entries (filelist)
+     fm.gpg_encrypt (filelist) # encrypt
+\end{verbatim}
+
+\section{Gestion de la base de données SQL}
+
+La base de données SQL sera utilisée pour indexer les fichiers chiffrés sur l'espace de stockage.
+Grâce à elle, on ne chiffrera pas plusieurs fois un même fichier, et on ne transférera pas sur
+l'hôte distant plusieurs fois les mêmes données.
+
+Il est donc impératif que la base de données contienne les informations suivantes :
+
+\begin{description}
+     \item[hash:] Le hash SHA-256 du fichier non chiffré, il sera utilisé en tant qu'index de la
+               base de données SQL.
+     \item[path:] Le chemin d'accès vers le fichier chiffré, ainsi pour un fichier chiffré on a le
+               hash du fichier non chiffré qui y est associé.
+     \item[sent:] La date à laquelle le fichier a été envoyé sur l'hôte distant (ou 0 s'il n'a pas
+               été envoyé).
+\end{description} ~
+
+Voici par exemple ce que pourra contenir une table :
+
+\noindent \begin{tabular}{| c | c | c |}
+     \hline
+     e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 & try/empty & 1320932458 \\ \hline
+     fe19778cf1ce280658154f2b9c01ffbccd825a23460141dcf3794e7a2c0eb629 & oops & 1315472654 \\ \hline
+     f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2 & test & 0 \\ \hline
+\end{tabular} ~ \newline \newline
+
+On aimerait cependant ne pas avoir à ce soucier du type de la base de données (\textit{MySQL}, \textit{SQLite},
+...), il conviendra donc d'utiliser \textit{Django} pour la gestion de la base de données :
+
+\begin{verbatim}
+     from django.db import models
+
+     class DatabaseEntry (models.Model):
+         checksum = models.CharField (max_length = 64)
+         path     = models.CharField (max_length = 256)
+         sent     = models.DateTimeField ()
+\end{verbatim}
+
+\section{Intégration Django}
+
+L'interface web étant également développé avec \textit{Django}, il convient donc d'intégrer notre script
+dans une application \textit{Django} qui sera distribuée avec l'interface web.
+
+Le projet, \textbf{delikatess}, se présente désormais sous la forme d'un projet \textit{Django} :
+
+\begin{description}
+     \item[webui:] L'interface web.
+     \item[trackfile:] Le script de sauvegarde et de chiffrement.
+     \item[sendit:] Le script d'envoie des fichiers chiffrés.
+\end{description}
+
+\subsection{trackfile}
+
+L'application \textit{trackfile} est donc l'intégration de notre script à \textit{Django}.
+Ainsi la base de données de notre script est commune à celle de \textit{Django} et de notre
+future application web :
+
+\begin{verbatim}
+     >>> from trackfile.utils import FileManager
+     >>> fm = FileManager (<gpg-key>, <source directory>, <destination directory>, nbackups = 7)
+     >>> fm.run ()
+\end{verbatim}
+
+\section{Intégration continue}
+
+Afin de vérifier la validité du code source produit à chaque modifications, il va falloir développer
+un script qui va devoir remplir les conditions suivantes :
+
+\begin{itemize}
+     \item Créer un environnement \textit{Python} virtuel (à l'aide de \textit{virtualenv} dans \textit{.venv}).
+     \item Installer les dépendances du projet dans cet environnement (à l'aide du gestionnaire de paquets \textit{Python} : \textit{pip}).
+     \item Exécuter les tests unitaires.
+\end{itemize}

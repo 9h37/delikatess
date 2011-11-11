@@ -1,0 +1,61 @@
+\part{Solution proposée}
+
+Dans cette partie, il sera proposé une solution permettant de répondre à la demande
+présentée ci-dessus.
+
+\section{Mise en place du serveur}
+
+Le choix du matériel dédié au serveur reste à déterminer (en fonction du volume de données à
+traiter). \newline
+
+Le serveur devra tourner sous un \textit{UNIX}/\textit{Linux}. Je proposerai ici
+\textit{Debian GNU/Linux}.
+
+La politique de \textit{Debian}, concernant la gestion des paquets, nous assurent que les
+logiciels présents dans les dépôts stables de la distribution (\textit{squeeze}) incorporent
+de nombreux correctifs de sécurité.
+
+L'installation de cette distribution est rapide (maximum 1h selon mon expérience) et facile
+(toutes les tâches de configuration de base sont faites automatiquement : réseau, dépôts, paquets
+additionnels, ...).
+
+\section{Partage de données}
+
+Pour le service de partage réseau, on utilisera \textit{Samba}, afin de permettre aux utilisateurs
+\textit{Windows} de se connecter au partage (les utilisateurs \textit{UNIX}/\textit{Linux} devront
+installer \textit{Samba} sur leurs machines afin de pouvoir monter le partage). \newline
+
+\begin{verbatim}
+     # aptitude install samba samba-client
+     # mkdir -p /srv/share
+     # useradd -g smbusers <username>
+     # smbpasswd -a <username>
+\end{verbatim}
+
+\paragraph{/etc/samba/smb.conf}
+\begin{verbatim}
+     [global]
+          workgroup = <workgroup>
+          netbios name = Partage réseau
+          server string = %h server (Samba %v)
+          log file = /var/log/samba/log.%m
+
+     [NetDrive]
+          path = /srv/share
+          browseable = yes
+          writeable = yes
+          valid users = @smbusers
+          invalid users = root
+          guest ok = No
+\end{verbatim}
+
+\textbf{NB:} Il existe une application web permettant de configurer \textit{Samba} :
+SWAT (\textbf{S}amba \textbf{A}dministration \textbf{W}eb \textbf{T}ool).
+
+\section{Sauvegarde et chiffrement des données}
+
+La sauvegarde des données étant périodique, on utilisera \textit{cron} pour planifier
+l'exécution de notre script.
+
+Tout d'abord il faut établir le rôle de notre script de sauvegarde.
+
