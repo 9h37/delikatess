@@ -13,14 +13,13 @@ GPG_KEY = "linkdd@goldorak"
 
 class TestFileManager (TestCase):
     def setUp (self):
-        self.src  = "/home/linkdd/devel/9h37/tests/src/"
-        self.dest = "/home/linkdd/devel/9h37/tests/dest/"
+        self.src  = os.getcwd () + "/tests/src/"
+        self.dest = os.getcwd () + "/tests/dest/"
         self.nbackups = 7
-
 
         # Data for test_01_readdir
         self.fl = utils.FileListing ()
-        self.files     = [ self.src + "oops", self.src + "test", self.src + "try/subdir" ]
+        self.files = [ self.src + "oops", self.src + "test", self.src + "try/subdir" ]
 
         # Data for test_02_checksum
         self.fh = utils.FileChecksum ()
@@ -31,17 +30,17 @@ class TestFileManager (TestCase):
         ]
 
         # Data for test_03_gpg
-        self.fe = utils.FileEncrypt (GPG_KEY, self.src, self.dest, nbackups = self.nbackups)
+        self.fe = utils.FileEncrypt (GPG_KEY, self.src, self.dest, nbackups = self.nbackups, extra_opts = "--homedir " + os.getcwd () + "/tests/gpg")
         self.encrypted = [
-            (self.src + "oops", self.dest + "oops.gpg"),
-            (self.src + "test", self.dest + "test.gpg"),
+            (self.src + "oops",       self.dest + "oops.gpg"),
+            (self.src + "test",       self.dest + "test.gpg"),
             (self.src + "try/subdir", self.dest + "try/subdir.gpg")
         ]
 
         for i in range (1, self.nbackups + 1):
             self.encrypted = self.encrypted + [
-                (self.src + "oops", self.dest + "oops." + str (i) + ".gpg"),
-                (self.src + "test", self.dest + "test." + str (i) + ".gpg"),
+                (self.src + "oops",       self.dest + "oops." + str (i) + ".gpg"),
+                (self.src + "test",       self.dest + "test." + str (i) + ".gpg"),
                 (self.src + "try/subdir", self.dest + "try/subdir." + str (i) + ".gpg")
             ]
 
