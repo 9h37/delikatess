@@ -9,7 +9,7 @@ from django.test import TestCase
 import utils
 import os
 
-GPG_KEY = "linkdd@goldorak"
+GPG_KEY = "linkdd@ydb.me"
 
 class TestFileManager (TestCase):
     def setUp (self):
