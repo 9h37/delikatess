@@ -69,7 +69,7 @@ class FileChecksum:
 class FileEncrypt:
     """ Object used to encrypt a list of files. """
 
-    def __init__ (self, recipient, src, dest, nbackups = 5):
+    def __init__ (self, recipient, src, dest, nbackups = 5, extra_opts = ""):
         """
             Object's constructor
 
@@ -79,8 +79,9 @@ class FileEncrypt:
             nbackups: number of copies (default = 5)
         """
 
-        self.recipient = recipient
-        self.nbackups  = nbackups
+        self.extra_opts = extra_opts
+        self.recipient  = recipient
+        self.nbackups   = nbackups
         self.src  = src
         self.dest = dest
 
@@ -102,13 +103,13 @@ class FileEncrypt:
                 os.makedirs (dirname)
 
             if os.path.exists (ef) == False:
-                os.system ("gpg --output " + ef + " --encrypt --recipient " + self.recipient + " " + f)
+                os.system ("gpg " + self.extra_opts + " --output " + ef + " --encrypt --recipient " + self.recipient + " " + f)
             else:
                 for i in range (1, self.nbackups + 1):
                     ief = ef.replace (".gpg", "." + str (i) + ".gpg")
 
                     if os.path.exists (ief) == False:
-                        os.system ("gpg --output " + ief + " --encrypt --recipient " + self.recipient + " " + f)
+                        os.system ("gpg " + self.extra_opts + " --output " + ief + " --encrypt --recipient " + self.recipient + " " + f)
                         ef = ief
                         break
 

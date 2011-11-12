@@ -5,7 +5,7 @@
 \subsection{Convention de l'ANSSI}
 
 L'Agence Nationale de la Sécurité des Systèmes d'Information recommande l'utilisation de
-l'algorithme de hachage \textbf{SHA-256}.
+l'algorithme de hachage \textbf{SHA-256} et l'usage de clé \textbf{RSA 2048 bits}.
 
 \subsection{Consigne}
 
@@ -38,12 +38,12 @@ A l'aide d'un unique objet, on est capable de récupérer la liste des fichiers 
 source, de calculer leurs sommes SHA-256 et de les chiffrer via \textit{GnuPG} :
 
 \begin{verbatim}
-     from src.filemanager import FileManager
+from src.filemanager import FileManager
 
-     fm = FileManager.FileManager (srcpath, destpath)
-     filelist = fm.read_entries ()
-     checksum = fm.hash_entries (filelist)
-     fm.gpg_encrypt (filelist) # encrypt
+fm = FileManager.FileManager (srcpath, destpath)
+filelist = fm.read_entries ()
+checksum = fm.hash_entries (filelist)
+fm.gpg_encrypt (filelist) # encrypt
 \end{verbatim}
 
 \section{Gestion de la base de données SQL}
@@ -76,12 +76,12 @@ On aimerait cependant ne pas avoir à ce soucier du type de la base de données 
 ...), il conviendra donc d'utiliser \textit{Django} pour la gestion de la base de données :
 
 \begin{verbatim}
-     from django.db import models
+from django.db import models
 
-     class DatabaseEntry (models.Model):
-         checksum = models.CharField (max_length = 64)
-         path     = models.CharField (max_length = 256)
-         sent     = models.DateTimeField ()
+class DatabaseEntry (models.Model):
+     checksum = models.CharField (max_length = 64)
+     path     = models.CharField (max_length = 256)
+     sent     = models.DateTimeField ()
 \end{verbatim}
 
 \section{Intégration Django}
@@ -104,9 +104,9 @@ Ainsi la base de données de notre script est commune à celle de \textit{Django
 future application web :
 
 \begin{verbatim}
-     >>> from trackfile.utils import FileManager
-     >>> fm = FileManager (<gpg-key>, <source directory>, <destination directory>, nbackups = 7)
-     >>> fm.run ()
+>>> from trackfile.utils import FileManager
+>>> fm = FileManager (<gpg-key>, <source directory>, <destination directory>, nbackups = 7)
+>>> fm.run ()
 \end{verbatim}
 
 \section{Intégration continue}
@@ -119,3 +119,16 @@ un script qui va devoir remplir les conditions suivantes :
      \item Installer les dépendances du projet dans cet environnement (à l'aide du gestionnaire de paquets \textit{Python} : \textit{pip}).
      \item Exécuter les tests unitaires.
 \end{itemize}
+
+\begin{verbatim}
+#!/bin/sh
+
+echo "===> Creating virtual environment: .venv"
+virtualenv .venv || exit 1
+
+echo && echo && echo "===> Installing dependancies"
+.venv/bin/pip install -r requirements.txt || exit 1
+
+echo && echo && echo "===> Running test suite"
+.venv/bin/python2.7 manage.py test || exit 1
+\end{verbatim}
