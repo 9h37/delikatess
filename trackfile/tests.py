@@ -62,11 +62,13 @@ class TestFileManager (TestCase):
     def test_03_gpg (self):
         encrypted = self.fe.encrypt (self.files)
 
-        for i in range (1, self.nbackups + 1):
-            encrypted = encrypted + self.fe.encrypt (self.files)
-
         for e in encrypted:
             self.assertTrue (e in self.encrypted, e)
+
+        for i in range (1, self.nbackups + 1):
+            self.fe.encrypt (self.files)
+
+        for e in self.encrypted:
             self.assertTrue (os.path.exists (e[1]), e[1])
 
 

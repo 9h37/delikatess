@@ -3,6 +3,7 @@
 from models import DatabaseEntry
 import os
 import hashlib
+import re
 
 class FileListing:
     """ Object use to list files recursively """
@@ -85,6 +86,23 @@ class FileEncrypt:
         self.src  = src
         self.dest = dest
 
+        self.pattern = re.compile (r"(\.\d+)*.gpg")
+
+    def _backup (self, path, iterate = 1):
+        """
+            Internal function which backup existant encrypted files.
+
+            path: Path of the original file
+            iterate: Internal param for the recursivity
+        """
+
+        npath = self.pattern.sub ("." + str (iterate) + ".gpg", path)
+
+        if os.path.exists (npath) == True:
+            self._backup (npath, iterate + 1)
+        if iterate <= self.nbackups + 1:
+            os.rename (path, npath)
+
     def encrypt (self, filelist):
         """
             Encrypt files using GnuPG
@@ -102,17 +120,10 @@ class FileEncrypt:
             if os.path.exists (dirname) == False:
                 os.makedirs (dirname)
 
-            if os.path.exists (ef) == False:
-                os.system ("gpg " + self.extra_opts + " --output " + ef + " --encrypt --recipient " + self.recipient + " " + f)
-            else:
-                for i in range (1, self.nbackups + 1):
-                    ief = ef.replace (".gpg", "." + str (i) + ".gpg")
+            if os.path.exists (ef) == True:
+                self._backup (ef)
 
-                    if os.path.exists (ief) == False:
-                        os.system ("gpg " + self.extra_opts + " --output " + ief + " --encrypt --recipient " + self.recipient + " " + f)
-                        ef = ief
-                        break
-
+            os.system ("gpg " + self.extra_opts + " --output " + ef + " --encrypt --recipient " + self.recipient + " " + f)
             ret.append ((f, ef))
 
         return ret
