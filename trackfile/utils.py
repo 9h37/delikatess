@@ -131,10 +131,10 @@ class FileEncrypt:
             if os.path.exists (dirname) == False:
                 os.makedirs (dirname)
 
-            if os.path.exists (ef) == True:
+            if os.path.exists (ef):
                 self._backup (ef)
 
-            os.system ("gpg " + self.extra_opts + " --output " + ef + " --encrypt --recipient " + self.recipient + " " + f)
+            os.system ("gpg {0} --output {1} --encrypt --recipient {2} {3}".format (self.extra_opts, ef, self.recipient, f)
             ret.append ((f, ef))
 
         return ret
