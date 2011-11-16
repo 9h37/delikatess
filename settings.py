@@ -120,7 +120,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'delikatess.trackfile',
+    'bootstrap',
+    'trackfile',
 )
 
 # A sample logging configuration. The only tangible logging

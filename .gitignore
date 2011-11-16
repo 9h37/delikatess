@@ -3,4 +3,5 @@
 *.log
 *.pyc
 .*.swp
+.#*
 *.pdf

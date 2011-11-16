@@ -132,3 +132,29 @@ echo && echo && echo "===> Installing dependancies"
 echo && echo && echo "===> Running test suite"
 .venv/bin/python2.7 manage.py test || exit 1
 \end{verbatim}
+
+\section{Interface Web}
+
+Maintenant que l'application \textit{trackfile} est terminée (pour le moment), le développement de l'application web
+va pouvoir commencer. La création d'une nouvelle application \textit{Django} ne sera pas nécessaire, en effet, il ne
+s'agit ici que d'une interface web. La base de donnée étant remplie par l'application \textit{trackfile}, notre interface
+ne sera utilisée que pour en visualiser le contenu.
+
+Notre projet \textit{Django} prend donc forme :
+
+\begin{verbatim}
+|-+ delikatess
+| |-- __init__.py
+| |-- manage.py
+| |-- settings.py
+| |-+ trackfile
+| | |-- __init__.py
+| | |-- models.py
+| | |-- utils.py
+| | |-- tests.py
+| |-- urls.py
+| |-- views.py
+\end{verbatim}
+
+Ici, le dossier \textit{trackfile} est celui de l'application, l'interface web ne sera contenue que dans le fichier
+\textit{views.py}.
