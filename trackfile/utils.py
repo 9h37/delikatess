@@ -100,8 +100,19 @@ class FileEncrypt:
 
         if os.path.exists (npath) == True:
             self._backup (npath, iterate + 1)
+
         if iterate <= self.nbackups + 1:
+            # Rename the file
             os.rename (path, npath)
+
+            # Update the database
+            try:
+                dbe = DatabaseEntry.objects.get (path = path)
+            except DatabaseEntry.DoesNotExist:
+                pass
+            else:
+                dbe.path = npath
+                dbe.save ()
 
     def encrypt (self, filelist):
         """
@@ -138,7 +149,7 @@ class FileEncrypt:
 class FileManager:
     """ Object implementing all previously created objects. """
 
-    def __init__ (self, recipient, src, dest, nbackups = 5):
+    def __init__ (self, recipient, src, dest, nbackups = 5, extra_gpg_opts = ""):
         """
             Object's constructor
 
@@ -148,7 +159,7 @@ class FileManager:
         self.src = src
         self.fl  = FileListing ()
         self.fh  = FileChecksum ()
-        self.fe  = FileEncrypt (recipient, src, dest, nbackups)
+        self.fe  = FileEncrypt (recipient, src, dest, nbackups, extra_gpg_opts)
 
     def _combinedata (self, checksums, encrypted):
         """
@@ -181,7 +192,24 @@ class FileManager:
         else:
             files     = self.fl.readdir (self.src)
             checksums = self.fh.checksum (files)
-            encrypted = self.fe.encrypt (files)
+
+            to_encrypt = files
+
+            for dbe in DatabaseEntry.objects.all ():
+                # Check if file's checksum is already in the database
+                for f,h in checksums:
+                    # If yes, don't need to encrypt it
+                    if dbe.checksum == h:
+                        to_encrypt.remove (f)
+                        break
+
+            # Now, delete unused checksums from the list
+            for c in checksums:
+                if c[0] not in to_encrypt:
+                    checksums.remove (c)
+
+            # Encrypt only files which are not in the database
+            encrypted = self.fe.encrypt (to_encrypt)
 
             data = self._combinedata (checksums, encrypted)
 
