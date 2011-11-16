@@ -158,3 +158,21 @@ Notre projet \textit{Django} prend donc forme :
 
 Ici, le dossier \textit{trackfile} est celui de l'application, l'interface web ne sera contenue que dans le fichier
 \textit{views.py}.
+
+L'application web sera construite à l'aide du front-end \textit{Twitter Bootstrap}, de \textit{dajax} et \textit{dajaxice}
+(plugins \textit{AJAX} pour \textit{Django}) :
+
+\begin{description}
+     \item[Twitter bootstrap :] \underline{http://twitter.github.com/bootstrap}
+     \item[dajaxice \& dajax :] \underline{http://www.dajaxproject.com}
+\end{description}
+
+
+L'interface web se décomposera en différentes parties (cf. schéma I.2.2) :
+
+\begin{itemize}
+     \item Une barre d'outil (informera sur l'utilisateur connecté ainsi que le dossier courrant).
+     \item Une vue en liste du contenu de l'espace de stockage.
+     \item Une vue en arborescence dont les interactions sont couplées à la vue en liste.
+     \item Un volet d'information sur le(s) fichier(s) sélectionné(s).
+\end{itemize}

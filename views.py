@@ -1,5 +1,16 @@
 from django.http import HttpResponse
-import bootstrap
+from django.template import Context, loader
+from trackfile.models import DatabaseEntry
 
 def home (request):
-     return HttpResponse ("<h1>It works!</h1>")
+    filelist = DatabaseEntry.objects.all ()
+    t = loader.get_template ('index.html')
+
+    c = Context ({
+        'filelist': filelist,
+    })
+
+    return HttpResponse (t.render (c))
+
+# vim: tabstop=4 shiftwidth=4 expandtab
+
