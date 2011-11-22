@@ -1,26 +1,140 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html>
     <head>
         <title>website</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link type="text/css" rel="stylesheet" media="all" href="style.css" />
+        <meta charset="utf-8" />
+
+        <!-- Twitter Bootstrap -->
+        <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}treeview.css" />
+        <style type="text/css">
+            body { padding-top: 60px; }
+        </style>
 
         <!-- jQuery -->
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}jquery.tablesorter.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}pure.min.js"></script>
+
+        <script type="text/javascript">
+            var data = {{jsontree|safe}};
+
+            function toggle (el)
+            {
+                var children = el.getElementsByTagName ('div')[0];
+
+                if (children.hasChildNodes () == false)
+                {
+                    return;
+                }
+
+                if (children.style.display == "none" || children.style.display == "")
+                {
+                    children.style.display = "block";
+                    el.style.backgroundImage = "url('{{ STATIC_URL }}images/folder.gif')"
+                }
+                else
+                {
+                    children.style.display = "none";
+                    el.style.backgroundImage = "url('{{ STATIC_URL }}images/folder-closed.gif')"
+                }
+            }
+
+            function render ()
+            {
+                var divs = $('.children');
+
+                for (var i = 0, c = divs.length; i < c; i++)
+                {
+                    var children = divs[i];
+                    if (children.hasChildNodes () == false)
+                    {
+                        li = children.parentNode;
+                        li.style.backgroundImage = "url('{{ STATIC_URL }}images/file.gif')";
+                    }
+                }
+            }
+
+            function go (name, li)
+            {
+                $('#nav').empty ();
+
+                var nli = $('<li/>');
+                nli.attr ("class", "active");
+
+                var nlink = $('<a/>');
+                nlink.text (name);
+                nlink.attr ("href", "#");
+
+                nli.append (nlink);
+                $('#nav').prepend (nli);
+            }
+        </script>
     </head>
     <body>
-        <div id="tree">
+        <script type="text/javascript">
+            $(document).ready (function () { render (); });
+        </script>
+        <div class="topbar">
+            <div class="topbar-inner">
+                <div class="container-fluid">
+                    <a class="brand" href="#">delikatess</a>
+                    <ul id="nav" class="nav">
+                        <li><a href="#1">Root folder</a></li>
+                        <li><a href="#2">Parent folder</a></li>
+                        <li class="active"><a href="#3">Current folder</a></li>
+                    </ul>
+                    <p class="pull-right">Logged in as <a href="#">a doctor</a></p>
+                </div>
+            </div>
         </div>
 
-        <div id="body">
-            <table>
-                <tr><th>Nom</th><th>Taille</th><th>Date</th><th>Actions</th></tr>
+        <div class="container-fluid">
+            <div class="sidebar">
+                <div class="well">
+                    <h5>Tree here</h5>
 
-                {% for f in filelist %}
-                    <tr><td title="{{f.checksum}}">{{f.name}}</td><td>{{f.size}}</td><td>{{f.date}}</td><td>X</td></tr>
-                {% endfor %}
-            </table>
+                    <ul class="treeItem">
+                        <li>
+                            <a class="name" href="javascript:void(0)">name</a>
+                            <div class="children"></div>
+                        </li>
+                    </ul>
+
+                    <script type="text/javascript">
+
+                        var directive = {
+                            "li": {
+                                "child <- children": {
+                                    "a": "child.name",
+                                    "a@onclick": "toggle (this.parentNode); go (this.innerHTML, this.parentNode);",
+                                    "div.children": function (ctxt) {
+                                        return (ctxt.child.item.children ? rfn (ctxt.child.item) : '');
+                                    }
+                                }
+                            }
+                        };
+                        var rfn = $('ul.treeItem').compile (directive);
+                        $('ul.treeItem').render (data, rfn);
+                    </script>
+                </div>
+            </div>
+
+            <div class="content">
+                <script type="text/javascript">
+                    $(function () {
+                        $('table#tablesorter').tablesorter ({sortList: [[1,0]] });
+                    });
+                </script>
+
+                <table class="bordered-table zebra-striped" id="tablesorter">
+                    <tr><th>Nom</th><th>Taille</th><th>Date</th><th>Actions</th></tr>
+
+                    {% for f in filelist %}
+                        <tr><td title="{{f.checksum}}">{{f.name}}</td><td>{{f.size}}</td><td>{{f.date}}</td><td>X</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
     </body>
 </html>

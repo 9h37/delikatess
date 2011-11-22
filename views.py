@@ -7,22 +7,46 @@ import os
 def home (request):
     entries = DatabaseEntry.objects.all ()
 
+    ## NOTE: Database structure will change in the future.
+
     # Create JSON tree
-    json = {}
+    json = {"children": []}
 
     for dbe in entries:
         folders = dbe.path.split (os.sep)
-        d = json
+        d = json["children"]
 
         for name in folders:
-            # Is it the end of path ?
-            if name == folders[-1]:
-                d[name] = (dbe.checksum, dbe.sent)
-            # If not in the tree, create it
-            elif name not in d:
-                d[name] = {}
+            tmp = {}
 
-            d = d[name]
+            # Is it the end of the path ?
+            if name == folders[-1]:
+                tmp["name"] = str (name)
+                tmp["hash"] = str (dbe.checksum)
+                tmp["sent"] = dbe.sent
+                d.append (tmp)
+                break
+
+            # Is it already in the tree ?
+            alreadyin = False
+
+            for child in d:
+                if child["name"] == name:
+                    alreadyin = True
+
+                    # If already in, just go to the next level
+                    if "children" in child:
+                        d = child["children"]
+
+                    break
+
+            # If not already in, create it
+            if alreadyin == False:
+                tmp["name"] = str (name)
+                tmp["children"] = []
+
+                d.append (tmp)
+                d = tmp["children"]
 
     # Create list for the table
     filelist = []
@@ -35,7 +59,7 @@ def home (request):
     t = loader.get_template ("index.html")
     c = RequestContext (request, {
         'filelist': filelist,
-        'json-tree': json,
+        'jsontree': json,
     })
 
     return HttpResponse (t.render (c))

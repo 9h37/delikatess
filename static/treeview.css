@@ -1,0 +1,19 @@
+ul.treeItem
+{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+ul.treeItem li
+{
+    background-image: url("images/folder-closed.gif");
+    background-repeat: no-repeat;
+    background-position: 0px 2px;
+    padding-left: 16px;
+}
+ul.treeItem li div.children
+{
+    display: none;
+}
+
