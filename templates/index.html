@@ -56,7 +56,7 @@
                                 "child <- children": {
                                     "a": "child.name",
                                     "a@title": "child.hash",
-                                    "a@onclick": "toggle (this.parentNode);",
+                                    "a@onclick": "toggle (this.parentNode, false);",
                                     "div.children": function (ctxt) {
                                         return (ctxt.child.item.children ? rfn (ctxt.child.item) : '');
                                     }
@@ -74,11 +74,9 @@
                 </script>
 
                 <table class="bordered-table zebra-striped" id="tablesorter">
-                    <tr><th>Nom</th><th>Taille</th><th>Date</th><th>Actions</th></tr>
+                    <thead><tr><th>Nom</th><th>Taille</th><th>Date</th><th>Actions</th></tr></thead>
 
-                    {% for f in filelist %}
-                        <tr><td title="{{f.checksum}}">{{f.name}}</td><td>{{f.size}}</td><td>{{f.date}}</td><td>X</td></tr>
-                    {% endfor %}
+                    <tbody id="table"></tbody>
                 </table>
             </div>
         </div>
