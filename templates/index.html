@@ -15,74 +15,23 @@
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}jquery.tablesorter.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}pure.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}treeview.js"></script>
 
         <script type="text/javascript">
             var data = {{jsontree|safe}};
 
-            function toggle (el)
-            {
-                var children = el.getElementsByTagName ('div')[0];
-
-                if (children.hasChildNodes () == false)
-                {
-                    return;
-                }
-
-                if (children.style.display == "none" || children.style.display == "")
-                {
-                    children.style.display = "block";
-                    el.style.backgroundImage = "url('{{ STATIC_URL }}images/folder.gif')"
-                }
-                else
-                {
-                    children.style.display = "none";
-                    el.style.backgroundImage = "url('{{ STATIC_URL }}images/folder-closed.gif')"
-                }
-            }
-
-            function render ()
-            {
-                var divs = $('.children');
-
-                for (var i = 0, c = divs.length; i < c; i++)
-                {
-                    var children = divs[i];
-                    if (children.hasChildNodes () == false)
-                    {
-                        li = children.parentNode;
-                        li.style.backgroundImage = "url('{{ STATIC_URL }}images/file.gif')";
-                    }
-                }
-            }
-
-            function go (name, li)
-            {
-                $('#nav').empty ();
-
-                var nli = $('<li/>');
-                nli.attr ("class", "active");
-
-                var nlink = $('<a/>');
-                nlink.text (name);
-                nlink.attr ("href", "#");
-
-                nli.append (nlink);
-                $('#nav').prepend (nli);
-            }
+            $(document).ready (function () {
+                render ();
+                go ("tests", $('.treeItem li')[0]);
+            });
         </script>
     </head>
     <body>
-        <script type="text/javascript">
-            $(document).ready (function () { render (); });
-        </script>
         <div class="topbar">
             <div class="topbar-inner">
                 <div class="container-fluid">
                     <a class="brand" href="#">delikatess</a>
                     <ul id="nav" class="nav">
-                        <li><a href="#1">Root folder</a></li>
-                        <li><a href="#2">Parent folder</a></li>
-                        <li class="active"><a href="#3">Current folder</a></li>
                     </ul>
                     <p class="pull-right">Logged in as <a href="#">a doctor</a></p>
                 </div>
@@ -102,12 +51,12 @@
                     </ul>
 
                     <script type="text/javascript">
-
                         var directive = {
                             "li": {
                                 "child <- children": {
                                     "a": "child.name",
-                                    "a@onclick": "toggle (this.parentNode); go (this.innerHTML, this.parentNode);",
+                                    "a@title": "child.hash",
+                                    "a@onclick": "toggle (this.parentNode);",
                                     "div.children": function (ctxt) {
                                         return (ctxt.child.item.children ? rfn (ctxt.child.item) : '');
                                     }
@@ -122,9 +71,6 @@
 
             <div class="content">
                 <script type="text/javascript">
-                    $(function () {
-                        $('table#tablesorter').tablesorter ({sortList: [[1,0]] });
-                    });
                 </script>
 
                 <table class="bordered-table zebra-striped" id="tablesorter">

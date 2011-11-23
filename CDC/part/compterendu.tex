@@ -176,3 +176,33 @@ L'interface web se décomposera en différentes parties (cf. schéma I.2.2) :
      \item Une vue en arborescence dont les interactions sont couplées à la vue en liste.
      \item Un volet d'information sur le(s) fichier(s) sélectionné(s).
 \end{itemize}
+
+\subsection{La vue en arborescence}
+
+La base de donnée peut être rapportée à une liste de chemin vers les fichiers chiffrés. Histoire
+de hiérarchiser cela, à partir de cette liste, on génère un arbre (qui est donc stocké dans un
+dictionnaire \textit{Python}, équivalent à du \textit{JSON}).
+
+Ce \textit{JSON} est donc transmis à la template \textit{Django} qui s'occupera (à l'aide de \textit{jQuery})
+de générer l'arborescence.
+
+\begin{verbatim}
+entries = DatabaseEntry.objects.all ()
+
+# Create JSON tree
+json = {}
+
+for dbe in entries:
+     folders = dbe.path.split (os.sep)
+     d = json
+
+     for name in folders:
+          # Is it the end of path ?
+          if name == folders[-1]:
+               d[name] = (dbe.checksum, dbe.sent)
+          # If not in the tree, create it
+          elif name not in d:
+               d[name] = {}
+
+          d = d[name]
+\end{verbatim}
