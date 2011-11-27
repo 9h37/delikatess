@@ -5,11 +5,13 @@ function filltable (li)
 
     $("#table").empty ();
 
+    // loop for every <li> objects.
     for (var i = 0, c = children.length; i < c; i++)
     {
         var a = children[i].getElementsByTagName ('a')[0];
         var cdiv = children[i].getElementsByTagName ('div')[0];
 
+        // choose correct image (folder or file ?)
         var img = $('<img/>');
         img.attr ({
             alt: "",
@@ -23,6 +25,7 @@ function filltable (li)
         var td = $('<td/>');
         td.append (img);
 
+        // if there is children, assume that is a folder
         if (cdiv.hasChildNodes ())
         {
             var link = $('<a/>');
@@ -33,6 +36,8 @@ function filltable (li)
             });
             link.text (a.innerHTML);
             link.PARENT = a.parentNode;
+
+            // when the user click on the folder, go to it
             link.click (function () {
                 toggle (link.PARENT, true);
             });
