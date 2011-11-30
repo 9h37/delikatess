@@ -95,3 +95,36 @@ FOREACH block in blocks
      PUT /v1/{id client}/{id rev remote}/blocks/{id block}
           {DATA}
 \end{verbatim}
+
+\subsection{Format du fichier Manifest}
+
+Le fichier \textit{Manifest} est utilisé pour répertorié les blocs d'un fichier dans toutes ses versions.
+Le format de ce fichier est en \textit{JSON} (on utilise donc ce langage dans toutes les couches de l'application).
+
+Un fichier \textit{Manifest} contient les informations suivantes :
+
+\begin{itemize}
+     \item La version courante du fichier.
+     \item Pour chaque fichier, le \textit{diff} des blocs par rapport à la version précédente.
+     \item Tout les X \textit{diff}, on rappel la totalité des blocs du fichier dans sa version actuelle.
+\end{itemize} ~ \newline
+
+Voici un exemple :
+
+\begin{verbatim}
+{'HEAD': 5,
+ '5': { '+1': 'hash', '+2': 'hash', '+3': 'hash', '4': 'hash' },
+ '4': { '+1': 'hash', '+4': 'hash' },
+ '3': { '-5': 'hash' },
+ '2': { '+5': 'hash', '-6': 'hash', '-7': 'hash' },
+ '1': { '1': 'hash', '2': 'hash', '3': 'hash', '4': 'hash',
+        '5': 'hash', '6': 'hash', '7': 'hash'
+ }
+}
+\end{verbatim}
+
+\begin{description}
+     \item[+X:] Le nouveau hash du bloc X.
+     \item[-X:] Le bloc X est supprimé dans cette version.
+     \item[X:] Le bloc X reste inchangé par rapport à la version précédente.
+\end{description}
