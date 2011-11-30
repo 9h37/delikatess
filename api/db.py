@@ -6,20 +6,58 @@ def AssertPathExists (path):
         raise IOError ("Path doesn't exists : {}".format (path))
 
 class Manifest:
-    def __init__ (self, associated_file):
+    def __init__ (self, associated_file, diffs = 5):
         self.file = associated_file
+        self.diffs = diffs
         self.paths = []
 
         AssertPathExists (self.file.path)
 
         for m in os.listdir (self.file.path):
-            self.paths.append (m)
+            self.paths.append (os.path.join (self.file.path, m))
+
+        self.paths.sort ()
 
     def checksum_in_db (self, checksum):
-        pass
+        for path in self.paths:
+            m = openlock (path)
+            d = eval (m.read ())
+
+            for rev in d:
+                if rev == checksum:
+                    continue
+
+                for blockid in d[rev]:
+                    if checksum == d[rev][blockid]:
+                        return (rev, blockid, checksum)
+
+        return None
 
     def add_block (self, block):
-        pass
+        rev      = block[0]
+        blockid  = block[1]
+        checksum = block[2]
+
+        mid = rev / self.diffs
+
+        if mid >= len (self.paths):
+            self.paths.append (os.path.join (self.file.path, "Manifest.{}".format (mid)))
+
+            # Manifest.HEAD = Manifest.mid
+
+        m = openlock (self.paths[mid], "rw")
+        d = eval (m.read ())
+
+        if rev not in d:
+            d[rev] = {}
+
+            # Manifest.HEAD : d["HEAD"] = rev
+
+        d[rev][blockid] = checksum
+
+        # empty file
+        m.write (str (d))
+        m.closeunlock ()
 
     def del_block (self, block):
         pass
