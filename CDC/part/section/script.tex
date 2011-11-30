@@ -1,0 +1,48 @@
+\subsection{Convention de l'ANSSI}
+
+L'Agence Nationale de la Sécurité des Systèmes d'Information recommande l'utilisation de
+l'algorithme de hachage \textbf{SHA-256} et l'usage de clé \textbf{RSA 2048 bits}.
+
+\subsection{Consigne}
+
+Le script de base devra être développé en \textit{Python 2.7} et devra remplir les conditions
+suivantes :
+
+\begin{enumerate}
+     \item Indentation de 4 espaces, pas de tabulations.
+     \item Deux répertoires : \textbf{src} et \textbf{dest}, le fichiers ne doivent pas être
+     copiés de \textit{src} vers \textit{dest}, ce dernier répertoire ne devra contenir que du
+     contenu chiffré.
+     \item Calculer la somme SHA-256 des fichiers sources et l'afficher.
+     \item Chiffrer les fichiers avec \textit{GnuPG} dans \textit{dest}.
+
+     \begin{enumerate}
+          \item Si le fichier n'existe pas, le créer.
+          \item Si le fichier existe le nommer selon ce pattern : \textit{filename.X.gpg} où X
+          varie de 1 à 5 (à la 6è itération, on supprime le fichier).
+     \end{enumerate}
+
+     \item Placer le code source dans un dépôt \textit{git}.
+     \item Utiliser \textit{unittest} pour les tests unitaires.
+\end{enumerate}
+
+\subsection{Conclusion}
+
+Cette partie du logiciel a été développée sous la forme d'un paquet \textit{Python}.
+
+A l'aide d'un unique objet, on est capable de récupérer la liste des fichiers du répertoire
+source, de calculer leurs sommes SHA-256 et de les chiffrer via \textit{GnuPG} :
+
+\begin{verbatim}
+from src.filemanager import FileManager
+
+fm = FileManager.FileManager (srcpath, destpath)
+filelist = fm.read_entries ()
+checksum = fm.hash_entries (filelist)
+fm.gpg_encrypt (filelist) # encrypt
+\end{verbatim}
+
+
+
+
+

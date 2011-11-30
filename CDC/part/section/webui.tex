@@ -1,0 +1,132 @@
+Maintenant que l'application \textit{trackfile} est terminée (pour le moment), le développement de l'application web
+va pouvoir commencer. La création d'une nouvelle application \textit{Django} ne sera pas nécessaire, en effet, il ne
+s'agit ici que d'une interface web. La base de donnée étant remplie par l'application \textit{trackfile}, notre interface
+ne sera utilisée que pour en visualiser le contenu.
+
+Notre projet \textit{Django} prend donc forme :
+
+\begin{verbatim}
+|-+ delikatess
+| |-- __init__.py
+| |-- manage.py
+| |-- settings.py
+| |-+ trackfile
+| | |-- __init__.py
+| | |-- models.py
+| | |-- utils.py
+| | |-- tests.py
+| |-- urls.py
+| |-- views.py
+\end{verbatim}
+
+Ici, le dossier \textit{trackfile} est celui de l'application, l'interface web ne sera contenue que dans le fichier
+\textit{views.py}.
+
+L'application web sera construite à l'aide du front-end \textit{Twitter Bootstrap}, de \textit{dajax} et \textit{dajaxice}
+(plugins \textit{AJAX} pour \textit{Django}) :
+
+\begin{description}
+     \item[Twitter bootstrap :] \url{http://twitter.github.com/bootstrap}
+     \item[dajaxice \& dajax :] \url{http://www.dajaxproject.com}
+\end{description}
+
+
+L'interface web se décomposera en différentes parties (cf. schéma I.2.2) :
+
+\begin{itemize}
+     \item Une barre d'outil (informera sur l'utilisateur connecté ainsi que le dossier courrant).
+     \item Une vue en liste du contenu de l'espace de stockage.
+     \item Une vue en arborescence dont les interactions sont couplées à la vue en liste.
+     \item Un volet d'information sur le(s) fichier(s) sélectionné(s).
+\end{itemize}
+
+\subsection{La vue en arborescence}
+
+La base de donnée peut être rapportée à une liste de chemin vers les fichiers chiffrés. Histoire
+de hiérarchiser cela, à partir de cette liste, on génère un arbre (qui est donc stocké dans un
+dictionnaire \textit{Python}, équivalent à du \textit{JSON}).
+
+Ce \textit{JSON} est donc transmis à la template \textit{Django} qui s'occupera (à l'aide de \textit{jQuery})
+de générer l'arborescence.
+
+\begin{verbatim}
+entries = DatabaseEntry.objects.all ()
+
+# Create JSON tree
+json = {"children": []}
+
+for dbe in entries:
+     folders = dbe.path.split (os.sep)
+     d = json["children"]
+
+     for name in folders:
+          tmp = {}
+
+          # Is it the end of the path ?
+          if name == folders[-1]:
+               tmp["name"] = str (name)
+               tmp["hash"] = str (dbe.checksum)
+               tmp["sent"] = dbe.sent
+               d.append (tmp)
+               break
+
+          # Is it already in the tree ?
+          alreadyin = False
+
+          for child in d:
+               if child["name"] == name:
+                    alreadyin = True
+
+                    # If already in, just go to the next level
+                    if "children" in child:
+                         d = child["children"]
+
+                    break
+
+          # If not already in, create it
+          if alreadyin == False:
+               tmp["name"] = str (name)
+               tmp["children"] = []
+
+               d.append (tmp)
+               d = tmp["children"]
+\end{verbatim}
+
+Cet arbre \textit{JSON} est ensuite convertit en \textit{HTML} grâce à la librairie \textit{JavaScript} :
+\textbf{PURE} (\url{http://beebole.com/pure/}), et avec un peu de \textit{JavaScript} supplémentaire, l'arbre
+devient interactif.
+
+\subsection{Le reste de l'interface}
+
+Pour le reste de l'interface, tout se base sur cet arbre. Les deux autres éléments (la table et la barre du haut)
+s'intègrent à ce dernier grâce à un peu de \textit{JavaScript} :
+
+\begin{itemize}
+     \item Un clic sur un dossier de l'arborescence provoque :
+
+     \begin{itemize}
+          \item L'apparition des sous-dossiers dans l'arborescence.
+          \item La modification du chemin courant dans la barre du haut.
+          \item Le chargement du contenu du dossier dans la table.
+     \end{itemize}
+
+     \item Un clic sur un éléments de la barre du haut provoque :
+
+     \begin{itemize}
+          \item L'apparition des sous-dossiers dans l'arborescence.
+          \item La modification du chemin courant dans la barre du haut.
+          \item Le chargement du contenu du dossier dans la table.
+     \end{itemize}
+
+     \item L'ouverture d'un dossier dans la table provoque :
+
+     \begin{itemize}
+          \item L'apparition des sous-dossiers dans l'arborescence.
+          \item La modification du chemin courant dans la barre du haut.
+          \item Le chargement du contenu du dossier dans la table.
+     \end{itemize}
+\end{itemize}
+
+Comme on peut le voir, chaque action sur chaque élément de l'interface fait appel aux mêmes fonctions.
+
+

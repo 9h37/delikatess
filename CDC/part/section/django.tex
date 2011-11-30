@@ -1,0 +1,22 @@
+L'interface web étant également développé avec \textit{Django}, il convient donc d'intégrer notre script
+dans une application \textit{Django} qui sera distribuée avec l'interface web.
+
+Le projet, \textbf{delikatess}, se présente désormais sous la forme d'un projet \textit{Django} :
+
+\begin{description}
+     \item[webui:] L'interface web.
+     \item[trackfile:] Le script de sauvegarde et de chiffrement.
+     \item[sendit:] Le script d'envoie des fichiers chiffrés.
+\end{description}
+
+\subsection{trackfile}
+
+L'application \textit{trackfile} est donc l'intégration de notre script à \textit{Django}.
+Ainsi la base de données de notre script est commune à celle de \textit{Django} et de notre
+future application web :
+
+\begin{verbatim}
+>>> from trackfile.utils import FileManager
+>>> fm = FileManager (<gpg-key>, <source directory>, <destination directory>, nbackups = 7)
+>>> fm.run ()
+\end{verbatim}

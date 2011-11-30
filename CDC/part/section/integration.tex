@@ -1,0 +1,23 @@
+Afin de vérifier la validité du code source produit à chaque modifications, il va falloir développer
+un script qui va devoir remplir les conditions suivantes :
+
+\begin{itemize}
+     \item Créer un environnement \textit{Python} virtuel (à l'aide de \textit{virtualenv} dans \textit{.venv}).
+     \item Installer les dépendances du projet dans cet environnement (à l'aide du gestionnaire de paquets \textit{Python} : \textit{pip}).
+     \item Exécuter les tests unitaires.
+\end{itemize}
+
+\begin{verbatim}
+#!/bin/sh
+
+echo "===> Creating virtual environment: .venv"
+virtualenv .venv || exit 1
+
+echo && echo && echo "===> Installing dependancies"
+.venv/bin/pip install -r requirements.txt || exit 1
+
+echo && echo && echo "===> Running test suite"
+.venv/bin/python2.7 manage.py test || exit 1
+\end{verbatim}
+
+
