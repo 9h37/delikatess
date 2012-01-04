@@ -1,0 +1,29 @@
+De nombreuses recherches ont été effectuées pour la réalisation du pojet. Certaines solutions ont été retenues, d'autres non.
+Résumons en quelques étapes l'avancement du projet :
+
+\begin{enumerate}
+     \item Le projet est local à l'entreprise, le stockage des données se fait chez un hôte distant.
+     \item Le projet se centralise chez l'hôte distant :
+     \begin{itemize}
+          \item L'interface web est centralisée, les clients se connectent donc au serveur.
+          \item Le client ne possède donc que les données sur lesquelles il travaille.
+          \item Le projet devient donc une sorte de gestionnaire de version.
+     \end{itemize}
+
+     \item Développement d'une interface web.
+
+     \item Recherche de différents algorithmes pour l'envoi de données efficaces :
+     \begin{itemize}
+          \item Découpage du fichier en bloc de données.
+          \item Comparaison des blocs de données présents chez le client et de ceux présents sur le serveur.
+          \item Envoi des blocs qui ont changés.
+     \end{itemize}
+
+     \item Réalisation de benchmarks sur l'algorithme retenu, les résultats sont plutôt mauvais.
+     \item Analyse de différentes solutions libres :
+     \begin{itemize}
+          \item \textbf{duplicity} (utilitaire joignant \textit{rdiff-backup} et \textit{GnuPG}) \url{http://duplicity.nongnu.org}
+          \item \textbf{bup} (une alternative à \textit{DropBox}, open-source, basée sur \textit{git}) \url{https://github.com/apenwarr/bup}
+     \end{itemize}
+\end{enumerate}
+
